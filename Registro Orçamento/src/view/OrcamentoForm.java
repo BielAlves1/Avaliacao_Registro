@@ -8,10 +8,7 @@ import java.text.ParseException;
 import java.util.Currency;
 import java.util.Locale;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -28,7 +25,7 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel painel;
-	private JLabel id, prod, fornecedor, valor, rotulos;
+	private JLabel id, prod, fornecedor, valor;
 	private JTextField tfId, tfProd, tfFornecedor, tfValor;
 	private JScrollPane rolagem;
 	private JTable table;
@@ -40,35 +37,38 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 	private DecimalFormat df = new DecimalFormat("#.00");
 
 	public OrcamentoForm() {
-		setTitle("Cadastro de Animais/Pets");
+		setTitle("Registro de Orçamentos");
 		setBounds(150, 170, 800, 600);
 		painel = new JPanel();
-		painel.setBackground(new Color(255, 233, 213));
+		painel.setBackground(new Color(174, 238, 238));
 		setContentPane(painel);
 		setLayout(null);
 
-		id = new JLabel("Id:");
-		id.setBounds(20, 20, 120, 30);
+		id = new JLabel("ID:");
+		id.setBounds(115, 20, 120, 30);
 		painel.add(id);
-		prod = new JLabel("EspÃ©cie:");
-		prod.setBounds(20, 55, 120, 30);
+		prod = new JLabel("Produto:");
+		prod.setBounds(80, 70, 120, 30);
 		painel.add(prod);
-		fornecedor = new JLabel("Nome pet:");
-		fornecedor.setBounds(20, 90, 120, 30);
+		fornecedor = new JLabel("Fornecedor:");
+		fornecedor.setBounds(60, 120, 120, 30);
 		painel.add(fornecedor);
+		valor = new JLabel("Valor:");
+		valor.setBounds(95, 170, 120, 30);
+		painel.add(valor);
 		
 		tfId = new JTextField(String.format("%d", autoId));
 		tfId.setEditable(false);
-		tfId.setBounds(140, 25, 140, 30);
+		tfId.setBounds(140, 25, 80, 35);
 		painel.add(tfId);
 		tfProd = new JTextField();
-		tfProd.setBounds(140, 60, 255, 30);
+		tfProd.setBounds(140, 75, 315, 35);
 		painel.add(tfProd);
 		tfFornecedor = new JTextField();
-		tfFornecedor.setBounds(140, 95, 255, 30);
+		tfFornecedor.setBounds(140, 125, 315, 35);
 		painel.add(tfFornecedor);
 		tfValor = new JTextField();
-		tfValor.setBounds(140, 130, 255, 30);
+		tfValor.setBounds(140, 175, 315, 35);
 		painel.add(tfValor);
 
 		table = new JTable();
@@ -90,10 +90,10 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 		read = new JButton("Buscar");
 		update = new JButton("Atualizar");
 		delete = new JButton("Excluir");
-		create.setBounds(285, 25, 110, 30);
-		read.setBounds(405, 25, 110, 30);
-		update.setBounds(525, 25, 110, 30);
-		delete.setBounds(645, 25, 110, 30);
+		create.setBounds(525, 50, 150, 35);
+		read.setBounds(525, 100, 150, 35);
+		update.setBounds(525, 150, 150, 35);
+		delete.setBounds(525, 200, 150, 35);
 		update.setEnabled(false);
 		delete.setEnabled(false);
 		painel.add(create);
@@ -128,37 +128,29 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 		}
 	}
 
-	// CREATE - CRUD
 	private void cadastrar() {
-		if (tfFornecedor.getText().length() != 0 && tfValor.getText().length() != 0 && tfPeso.getText().length() != 0
-				&& tfNascimento.getText().length() != 0 && tfNomeDono.getText().length() != 0
-				&& tfTelefone.getText().length() != 0) {
-
-			// Converter o peso no formato Brasileiro usando virgula como decimal
+		if (tfFornecedor.getText().length() != 0 && tfProd.getText().length() != 0 && tfFornecedor.getText().length() != 0 && tfValor.getText().length() != 0) {
 			df.setCurrency(Currency.getInstance(BRASIL));
-			float peso;
+			double valor;
 			try {
-				peso = Float.parseFloat(df.parse(tfPeso.getText()).toString());
+				valor = Double.parseDouble(df.parse(tfValor.getText()).toString());
 			} catch (ParseException e) {
 				System.out.println(e);
-				peso = 0;
+				valor = 0;
 			}
 
-			ProcessaOrcamento.orcamentos.add(new Pet(autoId, tfProd.getSelectedItem().toString(), tfFornecedor.getText(),
-					tfValor.getText(), peso, tfNascimento.getText(), tfNomeDono.getText(), tfTelefone.getText()));
+			ProcessaOrcamento.orcamentos.add(new Orcamento(autoId, tfProd.getText(), tfFornecedor.getText(), valor));
 			autoId++;
 			preencherTabela();
 			limparCampos();
 			ProcessaOrcamento.salvar();
 		} else {
-			JOptionPane.showMessageDialog(this, "Favor preencher todos os campos.");
+			JOptionPane.showMessageDialog(this, "Por Favor preencher todos os campos.");
 		}
 	}
 
-	// READ - CRUD
 	private void buscar() {
-		String entrada = JOptionPane.showInputDialog(this, "Digite o Id do animal:");
-
+		String entrada = JOptionPane.showInputDialog(this, "Digite o Id do Orçamento:");
 		boolean isNumeric = true;
 		if (entrada != null && !entrada.equals("")) {
 			for (int i = 0; i < entrada.length(); i++) {
@@ -171,53 +163,44 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 		}
 		if (isNumeric) {
 			int id = Integer.parseInt(entrada);
-			Pet pet = new Pet(id);
-			if (ProcessaOrcamento.orcamentos.contains(pet)) {
-				int indice = ProcessaOrcamento.orcamentos.indexOf(pet);
+			Orcamento orcamento = new Orcamento(id);
+			if (ProcessaOrcamento.orcamentos.contains(orcamento)) {
+				int indice = ProcessaOrcamento.orcamentos.indexOf(orcamento);
 				tfId.setText(ProcessaOrcamento.orcamentos.get(indice).getId("s"));
-				tfProd.setSelectedIndex(obterIndiceEspecie(ProcessaOrcamento.orcamentos.get(indice).getEspecie()));
-				tfFornecedor.setText(ProcessaOrcamento.orcamentos.get(indice).getNomePet());
-				tfValor.setText(ProcessaOrcamento.orcamentos.get(indice).getRaca());
-				tfPeso.setText(ProcessaOrcamento.orcamentos.get(indice).getPeso("s"));
-				tfNascimento.setText(ProcessaOrcamento.orcamentos.get(indice).getNascimento("s"));
-				tfNomeDono.setText(ProcessaOrcamento.orcamentos.get(indice).getNomeDono());
-				tfTelefone.setText(ProcessaOrcamento.orcamentos.get(indice).getTelefone());
+				tfProd.setText(ProcessaOrcamento.orcamentos.get(indice).getProduto());
+				tfFornecedor.setText(ProcessaOrcamento.orcamentos.get(indice).getFornecedor());
+				tfValor.setText(ProcessaOrcamento.orcamentos.get(indice).getPreco("s"));
 				create.setEnabled(false);
 				update.setEnabled(true);
 				delete.setEnabled(true);
 				ProcessaOrcamento.salvar();
 			} else {
-				JOptionPane.showMessageDialog(this, "Pet nï¿½o encontrado");
+				JOptionPane.showMessageDialog(this, "Orçamento não encontrado!");
 			}
 		}
 
 	}
 
-	// UPDATE - CRUD
 	private void alterar() {
 		int id = Integer.parseInt(tfId.getText());
-		Pet pet = new Pet(id);
-		int indice = ProcessaOrcamento.orcamentos.indexOf(pet);
-		if (tfFornecedor.getText().length() != 0 && tfValor.getText().length() != 0 && tfPeso.getText().length() != 0
-				&& tfNascimento.getText().length() != 0 && tfNomeDono.getText().length() != 0
-				&& tfTelefone.getText().length() != 0) {
+		Orcamento orcamento = new Orcamento(id);
+		int indice = ProcessaOrcamento.orcamentos.indexOf(orcamento);
+		if (tfProd.getText().length() != 0 && tfFornecedor.getText().length() != 0 && tfValor.getText().length() != 0) {
 
-			// Converter o peso no formato Brasileiro usando virgula como decimal
 			df.setCurrency(Currency.getInstance(BRASIL));
-			float peso;
+			double preco;
 			try {
-				peso = Float.parseFloat(df.parse(tfPeso.getText()).toString());
+				preco = Double.parseDouble(df.parse(tfValor.getText()).toString());
 			} catch (ParseException e) {
 				System.out.println(e);
-				peso = 0;
+				preco = 0;
 			}
 
-			ProcessaOrcamento.orcamentos.set(indice, new Pet(id, tfProd.getSelectedItem().toString(), tfFornecedor.getText(),
-					tfValor.getText(), peso, tfNascimento.getText(), tfNomeDono.getText(), tfTelefone.getText()));
+			ProcessaOrcamento.orcamentos.set(indice, new Orcamento(id, tfProd.getText(), tfFornecedor.getText(), preco));
 			preencherTabela();
 			limparCampos();
 		} else {
-			JOptionPane.showMessageDialog(this, "Favor preencher todos os campos.");
+			JOptionPane.showMessageDialog(this, "Por Favor preencher todos os campos.");
 		}
 		create.setEnabled(true);
 		update.setEnabled(false);
@@ -226,11 +209,10 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 		ProcessaOrcamento.salvar();
 	}
 
-	// DELETE - CRUD
 	private void excluir() {
 		int id = Integer.parseInt(tfId.getText());
-		Pet pet = new Pet(id);
-		int indice = ProcessaOrcamento.orcamentos.indexOf(pet);
+		Orcamento orcamento = new Orcamento(id);
+		int indice = ProcessaOrcamento.orcamentos.indexOf(orcamento);
 		ProcessaOrcamento.orcamentos.remove(indice);
 		preencherTabela();
 		limparCampos();
@@ -243,9 +225,6 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == tfProd) {
-			alternarImagens(tfProd.getSelectedIndex());
-		}
 		if (e.getSource() == create) {
 			cadastrar();
 		}
@@ -258,5 +237,11 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 		if (e.getSource() == delete) {
 			excluir();
 		}
+	}
+	
+	public static void main(String[] args) {
+		ProcessaOrcamento.abrir();
+		OrcamentoForm of = new OrcamentoForm();
+		of.setVisible(true);
 	}
 }
