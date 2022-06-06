@@ -10,11 +10,27 @@ public class ProcessaOrcamento {
 	public static ArrayList<Orcamento> orcamentos = new ArrayList<>();
 	private static OrcamentoDAO od = new OrcamentoDAO();
 	
+	public static void compararProdutos(String produto) {
+		int indexMaisBarato = 0;
+		double maisBarato = 9999999;
+		for (Orcamento orcamento : orcamentos) {
+			if (orcamento.getProduto().equals(produto) && orcamento.getPreco() < maisBarato) {
+			indexMaisBarato = orcamentos.indexOf(orcamento);
+			maisBarato = orcamento.getPreco();
+			}
+		}
+		
+		for (Orcamento orcamento : orcamentos) {
+			if (orcamentos.indexOf(orcamento) == indexMaisBarato) {
+				orcamento.setMaisBarato(true);
+			} else if(orcamento.getProduto() == produto){
+				orcamento.setMaisBarato(false);
+			}
+		}
+	}
+	
 	public static void abrir() {
 		orcamentos = od.ler();
-		if(orcamentos.size() == 0) {
-			orcamentos.add(new Orcamento(1, "Intel - XPTO1", "Processador i7 5ºG", 1099.99f));
-		}
 	}
 	
 	public static void salvar() {

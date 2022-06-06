@@ -25,8 +25,8 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel painel;
-	private JLabel id, prod, fornecedor, valor;
-	private JTextField tfId, tfProd, tfFornecedor, tfValor;
+	private JLabel id, fornecedor, produto, valor;
+	private JTextField tfId, tfFornecedor, tfProduto, tfValor;
 	private JScrollPane rolagem;
 	private JTable table;
 	private DefaultTableModel tableModel;
@@ -42,17 +42,18 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 		painel = new JPanel();
 		painel.setBackground(new Color(174, 238, 238));
 		setContentPane(painel);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setLayout(null);
 
 		id = new JLabel("ID:");
 		id.setBounds(115, 20, 120, 30);
 		painel.add(id);
-		prod = new JLabel("Produto:");
-		prod.setBounds(80, 70, 120, 30);
-		painel.add(prod);
 		fornecedor = new JLabel("Fornecedor:");
-		fornecedor.setBounds(60, 120, 120, 30);
+		fornecedor.setBounds(60, 70, 120, 30);
 		painel.add(fornecedor);
+		produto = new JLabel("Produto:");
+		produto.setBounds(80, 120, 120, 30);
+		painel.add(produto);
 		valor = new JLabel("Valor:");
 		valor.setBounds(95, 170, 120, 30);
 		painel.add(valor);
@@ -61,24 +62,26 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 		tfId.setEditable(false);
 		tfId.setBounds(140, 25, 80, 35);
 		painel.add(tfId);
-		tfProd = new JTextField();
-		tfProd.setBounds(140, 75, 315, 35);
-		painel.add(tfProd);
 		tfFornecedor = new JTextField();
-		tfFornecedor.setBounds(140, 125, 315, 35);
+		tfFornecedor.setBounds(140, 75, 315, 35);
 		painel.add(tfFornecedor);
+		tfProduto = new JTextField();
+		tfProduto.setBounds(140, 125, 315, 35);
+		painel.add(tfProduto);
 		tfValor = new JTextField();
 		tfValor.setBounds(140, 175, 315, 35);
 		painel.add(tfValor);
 
 		table = new JTable();
 		tableModel = new DefaultTableModel();
-		tableModel.addColumn("Id");
-		tableModel.addColumn("Produto");
+		tableModel.addColumn("ID");
 		tableModel.addColumn("Fornecedor");
+		tableModel.addColumn("Produto");
 		tableModel.addColumn("Valor");
+		tableModel.addColumn("Mais Barato");
 		if (ProcessaOrcamento.orcamentos.size() != 0) {
 			preencherTabela();
+			comparar();
 		}
 		table = new JTable(tableModel);
 		table.setEnabled(false);
@@ -101,7 +104,7 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 		painel.add(update);
 		painel.add(delete);
 
-		tfProd.addActionListener(this);
+		tfFornecedor.addActionListener(this);
 		create.addActionListener(this);
 		read.addActionListener(this);
 		update.addActionListener(this);
@@ -109,10 +112,16 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 
 	}
 	
+	public void comparar() {
+		for (Orcamento orcamento : ProcessaOrcamento.orcamentos) {
+			ProcessaOrcamento.compararProdutos(orcamento.getProduto());
+			}
+	}
+	
 	private void limparCampos() {
 		tfId.setText(String.format("%d",autoId));
-		tfProd.setText(null);
 		tfFornecedor.setText(null);
+		tfProduto.setText(null);
 		tfValor.setText(null);
 	}
 
@@ -124,12 +133,12 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 			}
 		}
 		for (Orcamento or : ProcessaOrcamento.orcamentos) {
-			tableModel.addRow(new String[] { or.getId("s"), or.getProduto(), or.getFornecedor(), or.getPreco("s") });
+			tableModel.addRow(new String[] { or.getId("s"), or.getFornecedor(), or.getProduto(), or.getPreco("s"), or.isMaisBarato("s")});
 		}
 	}
 
 	private void cadastrar() {
-		if (tfFornecedor.getText().length() != 0 && tfProd.getText().length() != 0 && tfFornecedor.getText().length() != 0 && tfValor.getText().length() != 0) {
+		if (tfFornecedor.getText().length() != 0 && tfProduto.getText().length() != 0 && tfValor.getText().length() != 0) {
 			df.setCurrency(Currency.getInstance(BRASIL));
 			double valor;
 			try {
@@ -138,11 +147,11 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 				System.out.println(e);
 				valor = 0;
 			}
-
-			ProcessaOrcamento.orcamentos.add(new Orcamento(autoId, tfProd.getText(), tfFornecedor.getText(), valor));
+			ProcessaOrcamento.orcamentos.add(new Orcamento(autoId, tfFornecedor.getText(), tfProduto.getText(), valor, false));
 			autoId++;
-			preencherTabela();
 			limparCampos();
+			comparar();
+			preencherTabela();
 			ProcessaOrcamento.salvar();
 		} else {
 			JOptionPane.showMessageDialog(this, "Por Favor preencher todos os campos.");
@@ -150,6 +159,7 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 	}
 
 	private void buscar() {
+	//Tava tudo funcionando bonitinho até adicionar a parte do boolean na table e parou de funcionar e não consegui resolver o erro...
 		String entrada = JOptionPane.showInputDialog(this, "Digite o Id do Orçamento:");
 		boolean isNumeric = true;
 		if (entrada != null && !entrada.equals("")) {
@@ -167,8 +177,8 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 			if (ProcessaOrcamento.orcamentos.contains(orcamento)) {
 				int indice = ProcessaOrcamento.orcamentos.indexOf(orcamento);
 				tfId.setText(ProcessaOrcamento.orcamentos.get(indice).getId("s"));
-				tfProd.setText(ProcessaOrcamento.orcamentos.get(indice).getProduto());
 				tfFornecedor.setText(ProcessaOrcamento.orcamentos.get(indice).getFornecedor());
+				tfProduto.setText(ProcessaOrcamento.orcamentos.get(indice).getProduto());
 				tfValor.setText(ProcessaOrcamento.orcamentos.get(indice).getPreco("s"));
 				create.setEnabled(false);
 				update.setEnabled(true);
@@ -185,7 +195,7 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 		int id = Integer.parseInt(tfId.getText());
 		Orcamento orcamento = new Orcamento(id);
 		int indice = ProcessaOrcamento.orcamentos.indexOf(orcamento);
-		if (tfProd.getText().length() != 0 && tfFornecedor.getText().length() != 0 && tfValor.getText().length() != 0) {
+		if (tfFornecedor.getText().length() != 0 && tfProduto.getText().length() != 0 && tfValor.getText().length() != 0) {
 
 			df.setCurrency(Currency.getInstance(BRASIL));
 			double preco;
@@ -196,7 +206,8 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 				preco = 0;
 			}
 
-			ProcessaOrcamento.orcamentos.set(indice, new Orcamento(id, tfProd.getText(), tfFornecedor.getText(), preco));
+			ProcessaOrcamento.orcamentos.set(indice, new Orcamento(id, tfFornecedor.getText(), tfProduto.getText(), preco, false));
+			comparar();
 			preencherTabela();
 			limparCampos();
 		} else {
@@ -214,6 +225,7 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 		Orcamento orcamento = new Orcamento(id);
 		int indice = ProcessaOrcamento.orcamentos.indexOf(orcamento);
 		ProcessaOrcamento.orcamentos.remove(indice);
+		comparar();
 		preencherTabela();
 		limparCampos();
 		create.setEnabled(true);

@@ -21,11 +21,12 @@ public class Orcamento {
 		this.id = id;
 	}
 
-	public Orcamento(int id, String fornecedor, String produto, double preco) {
+	public Orcamento(int id, String fornecedor, String produto, double preco, boolean maisBarato) {
 		this.id = id;
 		this.fornecedor = fornecedor;
 		this.produto = produto;
 		this.preco = preco;
+		this.maisBarato = maisBarato;
 	}
 
 	public Orcamento(String linha) {
@@ -35,6 +36,7 @@ public class Orcamento {
 		this.produto = linha.split(";")[2];
 		try {
 			this.preco = Double.parseDouble(df.parse(linha.split(";")[3]).toString());
+			this.maisBarato = false;
 		}catch (ParseException e) {
 			System.out.println(e);
 		}
@@ -83,16 +85,18 @@ public class Orcamento {
 	public boolean isMaisBarato() {
 		return maisBarato;
 	}
+	
+	public String isMaisBarato(String s) {
+		return String.format("%b", maisBarato);
+	}
 
 	public void setMaisBarato(boolean maisBarato) {
 		this.maisBarato = maisBarato;
 	}
-	
-	
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		return Objects.hash(fornecedor, id, maisBarato, preco, produto);
 	}
 
 	@Override
@@ -104,15 +108,17 @@ public class Orcamento {
 		if (getClass() != obj.getClass())
 			return false;
 		Orcamento other = (Orcamento) obj;
-		return id == other.id;
+		return Objects.equals(fornecedor, other.fornecedor) && id == other.id && maisBarato == other.maisBarato
+				&& Double.doubleToLongBits(preco) == Double.doubleToLongBits(other.preco)
+				&& Objects.equals(produto, other.produto);
 	}
 
 	@Override
 	public String toString() {
-		return id + "\t" + fornecedor + "\t" + produto + "\t" + preco + "\t" + maisBarato + "\n";
+		return id + "\t" + fornecedor + "\t" + produto + "\t" + String.format("%.2f", preco) + "\t" + maisBarato + "\n";
 	}
 	
 	public String toCSV() {
-		return id + ";" + fornecedor + ";" + produto + ";" + preco + "\r\n";
+		return id + ";" + fornecedor + ";" + produto + ";" + String.format("%.2f", preco) + ";" + maisBarato +"\r\n";
 	}
 }
