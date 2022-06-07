@@ -9,7 +9,7 @@ import java.util.Currency;
 import java.util.Locale;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -21,7 +21,7 @@ import javax.swing.table.DefaultTableModel;
 import controllers.ProcessaOrcamento;
 import model.Orcamento;
 
-public class OrcamentoForm extends JDialog implements ActionListener {
+public class OrcamentoForm extends JFrame implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel painel;
@@ -42,7 +42,7 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 		painel = new JPanel();
 		painel.setBackground(new Color(174, 238, 238));
 		setContentPane(painel);
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLayout(null);
 
 		id = new JLabel("ID:");
@@ -253,7 +253,6 @@ public class OrcamentoForm extends JDialog implements ActionListener {
 	
 	public static void main(String[] args) {
 		ProcessaOrcamento.abrir();
-		OrcamentoForm of = new OrcamentoForm();
-		of.setVisible(true);
+		new OrcamentoForm().setVisible(true);
 	}
 }

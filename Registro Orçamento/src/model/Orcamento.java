@@ -96,7 +96,7 @@ public class Orcamento {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(fornecedor, id, maisBarato, preco, produto);
+		return Objects.hash(id);
 	}
 
 	@Override
@@ -108,9 +108,7 @@ public class Orcamento {
 		if (getClass() != obj.getClass())
 			return false;
 		Orcamento other = (Orcamento) obj;
-		return Objects.equals(fornecedor, other.fornecedor) && id == other.id && maisBarato == other.maisBarato
-				&& Double.doubleToLongBits(preco) == Double.doubleToLongBits(other.preco)
-				&& Objects.equals(produto, other.produto);
+		return id == other.id;
 	}
 
 	@Override

@@ -1,1 +1,4 @@
-1;Intel - XPTO1;Processador i7 5°G;1000,00;true
+1;Intel - XPTO1;Processador i7 5°G;1000,00;false
+2;Intel - XPTO1;Processador i7 5°G;950,00;true
+3;AMD - XPTO1;Ryzen 5000G;850,00;true
+4;AMD - XPTO01;Ryzen 5000G;950,00;false
